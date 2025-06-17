@@ -152,6 +152,16 @@ impl<'ctx> Context<'ctx> {
             )
         })?;
 
+        // eprintln!("${:?}", self.module.get_name());
+        // let mut nf = 0;
+        // for function in self.module.get_functions() {
+        //     eprintln!("----------");
+        //     function.print_to_stderr();
+        //     nf = nf + 1;
+        // }
+        // eprintln!("{:?} functions", nf);
+        // eprintln!("");
+
         self.optimizer
             .run(&target_machine, self.module())
             .map_err(|error| anyhow::anyhow!("{} code optimizing: {error}", self.code_segment))?;
