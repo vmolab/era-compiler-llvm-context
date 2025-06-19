@@ -34,6 +34,8 @@ use self::function::Function;
 use self::solidity_data::SolidityData;
 use self::yul_data::YulData;
 
+use std::path;
+
 ///
 /// The LLVM IR generator context.
 ///
@@ -152,16 +154,18 @@ impl<'ctx> Context<'ctx> {
             )
         })?;
 
-        // eprintln!("${:?}", self.module.get_name());
-        // let mut nf = 0;
-        // for function in self.module.get_functions() {
-        //     eprintln!("----------");
-        //     function.print_to_stderr();
-        //     nf = nf + 1;
-        // }
-        // eprintln!("{:?} functions", nf);
-        // eprintln!("");
+        eprintln!("$MODULE$ {:?}", self.module.get_name());
 
+        let name_cstr = self.module.get_name();
+        let name = String::from_utf8_lossy(name_cstr.to_bytes()).to_string();
+
+        let mut llvm_path = path::PathBuf::from(name).into_os_string();
+        llvm_path.push(".ll");
+        let filename_pathbuf: path::PathBuf = llvm_path.into();
+        let filename = filename_pathbuf.file_name().unwrap();
+
+        let _ = self.module.print_to_file(filename);
+        
         self.optimizer
             .run(&target_machine, self.module())
             .map_err(|error| anyhow::anyhow!("{} code optimizing: {error}", self.code_segment))?;
